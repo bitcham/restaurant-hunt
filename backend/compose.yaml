@@ -1,24 +1,11 @@
 services:
-  backend:
-    image: backend
-    build:
-      context: .
-      dockerfile: backend/Dockerfile
-    ports:
-      - "5240:8080"
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=restaurant_hunt;Username=postgres;Password=example
-    depends_on:
-      - postgres
-
   postgres:
     image: postgres:17
     container_name: restaurant_postgres
     environment:
       POSTGRES_DB: restaurant_hunt
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: example
+      POSTGRES_USER: restaurant_hunt
+      POSTGRES_PASSWORD: password1234
     ports:
       - "5439:5432"
     volumes:
