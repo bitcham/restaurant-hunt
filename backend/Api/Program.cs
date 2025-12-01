@@ -2,16 +2,13 @@ using System.Text;
 using Asp.Versioning;
 using backend.Infrastructure;
 using Core;
-using Core.Application.Repositories.Contracts;
-using Core.Application.Services;
-using Core.Application.Services.Impl;
+using FluentValidation.AspNetCore;
 using Infra;
 using Infra.Data;
-using Infra.Repositories.Impl;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
-using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Mvc;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,6 +63,27 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnChallenge = async context =>
+        {
+            context.HandleResponse(); 
+            
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+            
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status401Unauthorized,
+                Title = "Unauthorized",
+                Detail = "You are not authorized to access this.",
+                Instance = context.Request.Path
+            };
+            
+            await context.Response.WriteAsJsonAsync(problemDetails);
+        }
     };
 });
 

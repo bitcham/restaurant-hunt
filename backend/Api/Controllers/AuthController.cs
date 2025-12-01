@@ -12,18 +12,23 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
     
     [HttpPost(ApiEndpoints.Auth.Register)]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status201Created)]
-    public async Task<ActionResult<UserResponse>> Register(RegisterUserRequest request)
+    public async Task<ActionResult<UserResponse>> Register(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        var result = await authService.Register(request);
+        var result = await authService.Register(request, cancellationToken);
         
-        return Created("", result);
+        return CreatedAtAction(
+            actionName: nameof(UserController.GetUserById), 
+            controllerName: "User", 
+            routeValues: new { id = result.Id, version = "1.0" },
+            value: result
+        );
     }
 
     [HttpPost(ApiEndpoints.Auth.Login)]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
-    public async Task<ActionResult<UserResponse>> Login(LoginRequest request)
+    public async Task<ActionResult<UserResponse>> Login(LoginRequest request, CancellationToken cancellationToken)
     {
-        var result = await authService.Login(request);
+        var result = await authService.Login(request, cancellationToken);
         
         return Ok(result);
     }

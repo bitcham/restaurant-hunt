@@ -16,4 +16,11 @@ public static class ApiEndpoints
         public const string Login = $"{Base}/login";
     }
     
+    public static class Users
+    {
+        private const string Base = $"{BaseApi}/users";
+        
+        public const string GetUserById = $"{Base}/{{id:guid}}";
+    }
+    
 }

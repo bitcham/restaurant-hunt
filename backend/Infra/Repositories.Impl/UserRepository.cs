@@ -7,16 +7,21 @@ namespace Infra.Repositories.Impl;
 
 public class UserRepository(AppDbContext dbContext) : IUserRepository
 {
-    public async Task<User?> GetByEmailAsync(string email)
+    public async Task<User?> GetByEmailAsync(string email, CancellationToken cancellationToken = default)
     {
         return await dbContext.Users
-            .SingleOrDefaultAsync(u => u.Email == email);
+            .SingleOrDefaultAsync(u => u.Email == email, cancellationToken);
     }
 
-    public async Task<User> AddAsync(User user)
+    public async Task<User> AddAsync(User user, CancellationToken cancellationToken = default)
     {
-        dbContext.Users.Add(user);
-        await dbContext.SaveChangesAsync();
+        await dbContext.Users.AddAsync(user, cancellationToken);
+        await dbContext.SaveChangesAsync(cancellationToken);
         return user;
+    }
+
+    public async Task<User?> GetByIdAsync(Guid id)
+    {
+        return await dbContext.Users.FindAsync(id);
     }
 }
