@@ -10,7 +10,12 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 
+using Core.Application.Options;
+
 var builder = WebApplication.CreateBuilder(args);
+
+// Configure Options
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
 builder.Services.AddOpenApi();
 builder.Services.AddControllers(); 
@@ -40,10 +45,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddCoreServices();
 builder.Services.AddInfraServices();
 
-
-var jwtKey = builder.Configuration["Jwt:Key"] ?? throw new InvalidOperationException("JWT Key is missing");
-var jwtIssuer = builder.Configuration["Jwt:Issuer"];
-var jwtAudience = builder.Configuration["Jwt:Audience"];
+var jwtOptions = builder.Configuration.GetSection(JwtOptions.SectionName).Get<JwtOptions>() 
+                 ?? throw new InvalidOperationException("JWT Options are missing");
 
 builder.Services.AddAuthentication(options =>
 {
@@ -55,15 +58,20 @@ builder.Services.AddAuthentication(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
     {
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
-        ValidIssuer = jwtIssuer,
-        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Key)),
+        ValidIssuer = jwtOptions.Issuer,
+        ValidAudience = jwtOptions.Audience,
         
         ValidateIssuer = true,
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
+        
+        RoleClaimType = "role",
+        NameClaimType = "name" 
     };
+    
+    options.MapInboundClaims = false; // Disable claim mapping for this scheme
 
     options.Events = new JwtBearerEvents
     {
@@ -83,11 +91,29 @@ builder.Services.AddAuthentication(options =>
             };
             
             await context.Response.WriteAsJsonAsync(problemDetails);
+        },
+        OnForbidden = async context =>
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            context.Response.ContentType = "application/json";
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status403Forbidden,
+                Title = "Forbidden",
+                Detail = "You do not have permission to access this resource.",
+                Instance = context.Request.Path
+            };
+            
+            await context.Response.WriteAsJsonAsync(problemDetails);
         }
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("Admin", policy => policy.RequireRole("admin"))
+    .AddPolicy("User", policy => policy.RequireRole("user"))
+    .AddPolicy("AdminOrUser", policy => policy.RequireRole("admin", "user"));
 
 var app = builder.Build();
 
@@ -103,6 +129,7 @@ app.UseSwagger();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
+
 app.UseAuthorization();
 
 app.MapControllers();

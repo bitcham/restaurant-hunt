@@ -1,5 +1,4 @@
 ﻿using Core.Domain.Entities;
-using Infra.Data.ValueGenerators;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -34,12 +33,9 @@ public class UserMapping : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder.Property(u => u.CreatedAt)
-            .HasColumnName("created_at")
-            .HasDefaultValueSql("CURRENT_TIMESTAMP")
-            .HasValueGenerator<CreatedAtGenerator>();
+            .HasColumnName("created_at");
 
         builder.Property(u => u.UpdatedAt)
-            .HasColumnName("updated_at")
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasColumnName("updated_at");
     }
 }

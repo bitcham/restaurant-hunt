@@ -6,9 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace backend.Controllers;
 
 [ApiController]
-[Authorize] 
 public class UserController(IUserService userService) : ControllerBase
 {
+    
+    [Authorize(Policy = "AdminOrUser")]
     [HttpGet(ApiEndpoints.Users.GetUserById)]
     [ProducesResponseType(typeof(UserResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<UserResponse>> GetUserById(Guid id)
