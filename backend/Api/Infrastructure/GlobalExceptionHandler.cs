@@ -21,6 +21,10 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             
             UserNotFoundException => (StatusCodes.Status404NotFound, "Not Found", exception.Message),
             
+            TokenNotValidException  => (StatusCodes.Status401Unauthorized, "Unauthorized", exception.Message),
+            
+            TokenNotFoundException => (StatusCodes.Status401Unauthorized, "Unauthorized", exception.Message),
+            
             _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", "An unexpected error occurred.")
             
         };

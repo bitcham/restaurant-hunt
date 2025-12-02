@@ -14,6 +14,8 @@ public static class ApiEndpoints
         public const string Register = $"{Base}/register";
         
         public const string Login = $"{Base}/login";
+        
+        public const string RefreshToken = $"{Base}/refresh-token";
     }
     
     public static class Users

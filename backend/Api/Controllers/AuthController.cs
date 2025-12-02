@@ -44,6 +44,26 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         
         return Ok(response);
     }
+
+    [HttpPost(ApiEndpoints.Auth.RefreshToken)]
+    [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
+    public async Task<ActionResult<AuthResponse>> RefreshToken(CancellationToken cancellationToken)
+    {
+        if (!Request.Cookies.TryGetValue("refreshToken", out var refreshToken) || string.IsNullOrEmpty(refreshToken))
+        {
+            return Unauthorized("Refresh token is missing.");
+        }
+
+        var result = await authService.RefreshToken(refreshToken, cancellationToken);
+        
+        SetRefreshTokenCookie(result.RefreshToken);
+        
+        var response = result with { RefreshToken = string.Empty };
+        
+        return Ok(response);
+    }
+    
+    
     
     private void SetRefreshTokenCookie(string refreshToken)
     {

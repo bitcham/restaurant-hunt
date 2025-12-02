@@ -1,5 +1,6 @@
 using Core.Application.Dtos.Requests;
 using Core.Application.Dtos.Responses;
+using Core.Application.Exceptions;
 using Core.Application.Options;
 using Core.Application.Repositories.Contracts;
 using Core.Application.Services;
@@ -106,5 +107,70 @@ public class AuthServiceTests
         _jwtTokenGeneratorMock.Verify(generator => generator.GenerateToken(userResponse.Id, userResponse.Email), Times.Once);
         _jwtTokenGeneratorMock.Verify(generator => generator.GenerateRefreshToken(userResponse.Id, userResponse.Email), Times.Once);
         _refreshTokenRepositoryMock.Verify(repo => repo.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task RefreshToken_ShouldReturnAuthResponse_WhenCalled()
+    {
+        // Arrange
+        Guid userId = Guid.NewGuid();
+        var existingRefreshToken = new RefreshToken
+        {
+            Id = Guid.NewGuid(),
+            Token = "existing-refresh-token",
+            UserId = userId,
+            Expires = DateTime.UtcNow.AddDays(1)
+        };
+        var request = new LoginRequest("test@example.com", "password123");
+        var userResponse = new UserResponse(userId, request.Email, "testuser");
+        var newToken = "generated-token";
+        var newRefreshToken = "generated-refresh-token";
+        
+        _userServiceMock.Setup(service => service.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(userResponse);
+        
+        _refreshTokenRepositoryMock.Setup(repo => repo.GetByTokenAsync("existing-refresh-token", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(existingRefreshToken);
+
+        _jwtTokenGeneratorMock.Setup(generator => generator.GenerateToken(userResponse.Id, userResponse.Email))
+            .Returns(newToken);
+
+        _jwtTokenGeneratorMock.Setup(generator => generator.GenerateRefreshToken(userResponse.Id, userResponse.Email))
+            .Returns(newRefreshToken);
+            
+        _refreshTokenRepositoryMock.Setup(repo => repo.AddAsync(It.IsAny<RefreshToken>(), It.IsAny<CancellationToken>()))
+            .Returns(Task.CompletedTask);
+        
+        // Act
+        var result = await _authService.RefreshToken("existing-refresh-token", CancellationToken.None);
+        
+        // Assert
+        Assert.Equal(userResponse, result.User);
+        Assert.Equal(newToken, result.Token);
+        Assert.Equal(newRefreshToken, result.RefreshToken);
+    }
+
+    [Fact]
+    public async Task RefreshToken_ShouldThrowTokenNotFoundException_WhenTokenDoesNotExist()
+    {
+        _refreshTokenRepositoryMock.Setup(repo => repo.GetByTokenAsync("existing-refresh-token", It.IsAny<CancellationToken>()))
+            .ReturnsAsync((RefreshToken?)null);
+        
+        await Assert.ThrowsAsync<TokenNotFoundException>(async () => await _authService.RefreshToken("existing-refresh-token", CancellationToken.None));;
+    }
+
+    [Fact]
+    public async Task RefreshToken_ShouldThrowTokenNotValidException_WhenTokenIsNotActive()
+    {
+        _refreshTokenRepositoryMock.Setup(repo => repo.GetByTokenAsync("existing-refresh-token", It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new RefreshToken
+            {
+                Id = Guid.NewGuid(),
+                Token = "existing-refresh-token",
+                UserId = Guid.NewGuid(),
+                Expires = DateTime.UtcNow.AddDays(-1) // Expired token
+            });
+        
+        await Assert.ThrowsAsync<TokenNotValidException>(async () => await _authService.RefreshToken("existing-refresh-token", CancellationToken.None));;
     }
 }

@@ -7,4 +7,5 @@ public interface IAuthService
 {
     Task<AuthResponse> Register(RegisterUserRequest request, CancellationToken cancellationToken = default);
     Task<AuthResponse> Login(LoginRequest request, CancellationToken cancellationToken = default);
+    Task<AuthResponse> RefreshToken(string refreshToken, CancellationToken cancellationToken);
 }
