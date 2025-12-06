@@ -21,7 +21,6 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         
         SetRefreshTokenCookie(result.RefreshToken);
         
-        // We don't want to return the RefreshToken in the body if it's in the cookie
         var response = result with { RefreshToken = string.Empty };
         
         return CreatedAtAction(

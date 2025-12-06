@@ -33,7 +33,7 @@ public class UserService(IUserRepository userRepository, IPasswordHasher passwor
             throw new UserNotFoundException();
         }
         
-        return !user.VerifyPassword(request.Password, passwordHasher) ? throw new InvalidCredentialsException("Username or password is incorrect.") : UserResponse.FromEntity(user);
+        return passwordHasher.Verify(request.Password, user.PasswordHash) ?  UserResponse.FromEntity(user) : throw new InvalidCredentialsException("Username or password is incorrect.");
     }
 
     public async Task<UserResponse> GetByIdAsync(Guid id)

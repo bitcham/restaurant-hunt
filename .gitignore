@@ -42,5 +42,6 @@ packages/
 GEMINI.md
 .gemini/
 domain.md
-function.md
-PRD.md
+plan.md
+ticket.md
+prd.md

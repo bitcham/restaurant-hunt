@@ -37,5 +37,10 @@ public class UserMapping : IEntityTypeConfiguration<User>
 
         builder.Property(u => u.UpdatedAt)
             .HasColumnName("updated_at");
+
+        builder.Property(u => u.Role)
+            .HasColumnName("role")
+            .HasConversion<string>()
+            .IsRequired();
     }
 }

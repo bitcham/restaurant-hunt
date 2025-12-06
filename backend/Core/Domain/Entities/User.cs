@@ -1,4 +1,5 @@
 using Core.Application.Services;
+using Core.Domain.Enums;
 
 namespace Core.Domain.Entities;
 
@@ -9,6 +10,8 @@ public class User : BaseEntity
     public required string PasswordHash { get; set; } = string.Empty;
     
     public required string Username { get; set; } = string.Empty;
+    
+    public UserRole Role { get; set; } = UserRole.FrontDesk;
 
     protected User()
     {
@@ -38,6 +41,4 @@ public class User : BaseEntity
     {
         PasswordHash = newPasswordHash;
     }
-    
-    
 }

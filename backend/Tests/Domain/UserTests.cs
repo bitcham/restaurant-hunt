@@ -23,26 +23,7 @@ public class UserTests
         Assert.Equal(passwordHash, user.PasswordHash);
         Assert.Equal(username, user.Username);
     }
-
-    [Fact]
-    public void VerifyPassword_ShouldCallHasherVerify()
-    {
-        // Arrange
-        var password = "password123";
-        var hash = "hashed_password";
-        var user = User.Register("test@example.com", hash, "user");
-        
-        var hasherMock = new Mock<IPasswordHasher>();
-        hasherMock.Setup(h => h.Verify(password, hash)).Returns(true);
-
-        // Act
-        var result = user.VerifyPassword(password, hasherMock.Object);
-
-        // Assert
-        Assert.True(result);
-        hasherMock.Verify(h => h.Verify(password, hash), Times.Once);
-    }
-
+    
     [Fact]
     public void UpdateUsername_ShouldUpdateUsername_And_UpdatedAt()
     {

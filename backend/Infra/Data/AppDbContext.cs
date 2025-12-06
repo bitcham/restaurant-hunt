@@ -8,6 +8,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<User> Users { get; set; }
     public DbSet<RefreshToken> RefreshTokens { get; set; }
+    public DbSet<Patient> Patients { get; set; }
+    public DbSet<Clinician> Clinicians { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -15,6 +17,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.ApplyConfiguration(new UserMapping());
         modelBuilder.ApplyConfiguration(new RefreshTokenMapping());
+        modelBuilder.ApplyConfiguration(new PatientMapping());
+        modelBuilder.ApplyConfiguration(new ClinicianMapping());
     }
 
     public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
