@@ -117,7 +117,7 @@ public class AuthController(ILogger<AuthController> _logger, IAuthService authSe
         var cookieOptions = new CookieOptions
         {
             HttpOnly = true,
-            Expires = DateTimeOffset.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireHours),
+            Expires = DateTimeOffset.UtcNow.AddHours(_jwtOptions.RefreshTokenExpireHours),
             SameSite = SameSiteMode.Strict,
             Secure = true // Ensure this is true in production (requires HTTPS)
         };

@@ -22,9 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure Options
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
 
-builder.Services.AddOpenApi();
-builder.Services.AddControllers(); 
-builder.Services.AddFluentValidationAutoValidation() 
+builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation()
     .AddFluentValidationClientsideAdapters();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -127,10 +126,9 @@ app.UseExceptionHandler();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-
-app.UseSwagger();
 app.UseHttpsRedirection();
 
 app.UseAuthentication();

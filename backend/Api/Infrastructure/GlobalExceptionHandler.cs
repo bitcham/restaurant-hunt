@@ -1,6 +1,7 @@
 using Core.Application.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Infrastructure;
 
@@ -25,9 +26,13 @@ public class GlobalExceptionHandler(ILogger<GlobalExceptionHandler> logger) : IE
             TimeSlotNotFoundException => (StatusCodes.Status404NotFound, "Not Found", exception.Message),
             TimeSlotNotAvailableException => (StatusCodes.Status409Conflict, "Conflict", exception.Message),
             AppointmentNotFoundException => (StatusCodes.Status404NotFound, "Not Found", exception.Message),
-            
+
+            DbUpdateConcurrencyException => (StatusCodes.Status409Conflict, "Conflict", "The resource was modified by another request. Please retry."),
+            DbUpdateException => (StatusCodes.Status409Conflict, "Conflict", "A database constraint was violated."),
+            UnauthorizedAccessException => (StatusCodes.Status403Forbidden, "Forbidden", exception.Message),
+            InvalidOperationException => (StatusCodes.Status400BadRequest, "Bad Request", exception.Message),
+
             _ => (StatusCodes.Status500InternalServerError, "Internal Server Error", "An unexpected error occurred.")
-            
         };
 
         var problemDetails = new ProblemDetails

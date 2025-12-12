@@ -7,6 +7,7 @@ public interface IAppointmentService
 {
     Task<AppointmentResponse> CreateAsync(Guid patientId, CreateAppointmentRequest request, CancellationToken cancellationToken = default);
     Task<AppointmentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<IEnumerable<AppointmentResponse>> GetAllAsync(CancellationToken cancellationToken = default);
     Task<IEnumerable<AppointmentResponse>> GetByPatientIdAsync(Guid patientId, CancellationToken cancellationToken = default);
     Task<IEnumerable<AppointmentResponse>> GetByClinicianIdAsync(Guid clinicianId, CancellationToken cancellationToken = default);
     Task<AppointmentResponse> CancelAsync(Guid id, CancellationToken cancellationToken = default);

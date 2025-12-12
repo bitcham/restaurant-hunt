@@ -41,11 +41,16 @@ public class TimeSlotRepository(AppDbContext context) : ITimeSlotRepository
 
         return await context.TimeSlots
             .Include(t => t.Clinician)
-            .Where(t => t.ClinicianId == clinicianId 
-                && t.IsAvailable 
-                && t.StartTime >= startOfDay 
+            .Where(t => t.ClinicianId == clinicianId
+                && t.IsAvailable
+                && t.StartTime >= startOfDay
                 && t.StartTime <= endOfDay)
             .OrderBy(t => t.StartTime)
             .ToListAsync(cancellationToken);
+    }
+
+    public void Delete(TimeSlot timeSlot)
+    {
+        context.TimeSlots.Remove(timeSlot);
     }
 }

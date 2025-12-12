@@ -36,19 +36,27 @@ public class AppointmentController(
         var userId = Guid.Parse(User.FindFirstValue("sub")!);
         var role = User.FindFirstValue("role");
 
-        if (role == "Patient")
+        IEnumerable<AppointmentResponse> appointments = role switch
         {
-            var patient = await patientService.GetByUserIdAsync(userId, cancellationToken);
-            var appointments = await appointmentService.GetByPatientIdAsync(patient.Id, cancellationToken);
-            return Ok(appointments);
-        }
-        else
-        {
-            // For clinicians, get clinician by userId first, then get appointments
-            var clinician = await clinicianService.GetByUserIdAsync(userId, cancellationToken);
-            var appointments = await appointmentService.GetByClinicianIdAsync(clinician.Id, cancellationToken);
-            return Ok(appointments);
-        }
+            "Patient" => await GetPatientAppointments(userId, cancellationToken),
+            "Clinician" => await GetClinicianAppointments(userId, cancellationToken),
+            "Manager" or "FrontDesk" => await appointmentService.GetAllAsync(cancellationToken),
+            _ => throw new UnauthorizedAccessException($"Role '{role}' is not authorized to access appointments.")
+        };
+
+        return Ok(appointments);
+    }
+
+    private async Task<IEnumerable<AppointmentResponse>> GetPatientAppointments(Guid userId, CancellationToken cancellationToken)
+    {
+        var patient = await patientService.GetByUserIdAsync(userId, cancellationToken);
+        return await appointmentService.GetByPatientIdAsync(patient.Id, cancellationToken);
+    }
+
+    private async Task<IEnumerable<AppointmentResponse>> GetClinicianAppointments(Guid userId, CancellationToken cancellationToken)
+    {
+        var clinician = await clinicianService.GetByUserIdAsync(userId, cancellationToken);
+        return await appointmentService.GetByClinicianIdAsync(clinician.Id, cancellationToken);
     }
 
     [HttpGet(ApiEndpoints.Appointments.GetById)]

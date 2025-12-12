@@ -86,7 +86,7 @@ public class AuthService(
         {
             Token = refreshTokenString,
             UserId = userId,
-            Expires = DateTimeOffset.UtcNow.AddDays(_jwtOptions.RefreshTokenExpireHours)
+            Expires = DateTimeOffset.UtcNow.AddHours(_jwtOptions.RefreshTokenExpireHours)
         };
 
         await refreshTokenRepository.AddAsync(refreshToken, cancellationToken);

@@ -47,7 +47,7 @@ public class TimeSlotService(
         var slot = await timeSlotRepository.GetByIdAsync(id, cancellationToken)
             ?? throw new TimeSlotNotFoundException();
 
-        // Soft delete handled by DbContext
+        timeSlotRepository.Delete(slot);
         await unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

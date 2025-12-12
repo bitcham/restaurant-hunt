@@ -8,6 +8,8 @@ public class ClinicianMapping : IEntityTypeConfiguration<Clinician>
 {
     public void Configure(EntityTypeBuilder<Clinician> builder)
     {
+        builder.ToTable("clinicians");
+
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
 

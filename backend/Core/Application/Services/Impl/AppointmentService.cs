@@ -57,6 +57,12 @@ public class AppointmentService(
         return AppointmentResponse.FromEntity(appointment);
     }
 
+    public async Task<IEnumerable<AppointmentResponse>> GetAllAsync(CancellationToken cancellationToken = default)
+    {
+        var appointments = await appointmentRepository.GetAllAsync(cancellationToken);
+        return appointments.Select(AppointmentResponse.FromEntity);
+    }
+
     public async Task<IEnumerable<AppointmentResponse>> GetByPatientIdAsync(
         Guid patientId, 
         CancellationToken cancellationToken = default)

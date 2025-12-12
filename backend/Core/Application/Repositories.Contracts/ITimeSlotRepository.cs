@@ -9,4 +9,5 @@ public interface ITimeSlotRepository
     Task<TimeSlot?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<IEnumerable<TimeSlot>> GetByClinicianIdAsync(Guid clinicianId, CancellationToken cancellationToken = default);
     Task<IEnumerable<TimeSlot>> GetAvailableByClinicianIdAsync(Guid clinicianId, DateOnly date, CancellationToken cancellationToken = default);
+    void Delete(TimeSlot timeSlot);
 }

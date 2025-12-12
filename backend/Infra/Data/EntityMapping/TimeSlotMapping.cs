@@ -8,7 +8,7 @@ public class TimeSlotMapping : IEntityTypeConfiguration<TimeSlot>
 {
     public void Configure(EntityTypeBuilder<TimeSlot> builder)
     {
-        builder.ToTable("TimeSlots");
+        builder.ToTable("time_slots");
 
         builder.HasKey(t => t.Id);
         builder.Property(t => t.Id).ValueGeneratedOnAdd();

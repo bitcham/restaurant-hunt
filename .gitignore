@@ -47,3 +47,6 @@ CLAUDE.md
 nul
 test.md
 분석.md
+functional.md
+non-functional.md
+./backend/Api/.env.example
